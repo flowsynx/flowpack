@@ -40,7 +40,7 @@ public class Packager
         string pluginTempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".plugin");
         string pluginMetadataTempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
 
-        var metadata = PluginReflector.ExtractPluginMetadata(tempOutput);
+        var metadata = PluginReflector.ExtractPluginMetadata(tempOutput, _options.Verbose);
         if (metadata == null)
         {
             Console.WriteLine("No valid plugin metadata found.");

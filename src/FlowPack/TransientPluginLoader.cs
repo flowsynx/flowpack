@@ -26,7 +26,7 @@ public class TransientPluginLoader : IPluginLoader
             var pluginType = LoadPluginType(pluginAssembly);
 
             if (pluginType == null)
-                throw new Exception($"Plugin_Loader_NoPluginFound: '{_pluginLocation}'");
+                throw new Exception($"No plugin type found: '{_pluginLocation}'");
 
             _pluginInstance = CreatePluginInstance(pluginType);
         }
@@ -36,7 +36,7 @@ public class TransientPluginLoader : IPluginLoader
     {
         if (!File.Exists(pluginLocation))
         {
-            throw new Exception($"Plugin_Loader_FileNotFound: {pluginLocation}");
+            throw new Exception($"Plugin file not found: {pluginLocation}");
         }
     }
 
@@ -52,7 +52,7 @@ public class TransientPluginLoader : IPluginLoader
     {
         if (Activator.CreateInstance(pluginType) is not IPlugin instance)
         {
-            throw new Exception($"Plugin_Loader_FailedToCreateInstance '{pluginType.FullName}'");
+            throw new Exception($"Failed to create plugin instance of type '{pluginType.FullName}'.");
         }
         return instance;
     }
