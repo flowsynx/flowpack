@@ -38,6 +38,17 @@ public class Packager
 
         // Create .plugin file from published output
         string pluginTempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".plugin");
+        string pluginMetadataTempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
+
+        var metadata = PluginReflector.ExtractPluginMetadata(tempOutput);
+        if (metadata == null)
+        {
+            Console.WriteLine("No valid plugin metadata found.");
+            return false;
+        }
+
+        var manifestPath = PluginReflector.SaveMetadataToFile(metadata, tempOutput);
+
         ZipFile.CreateFromDirectory(tempOutput, pluginTempPath);
         LogInfo($"Plugin created: {pluginTempPath}");
 
@@ -62,6 +73,7 @@ public class Packager
         using (var archive = ZipFile.Open(fspackPath, ZipArchiveMode.Create))
         {
             archive.CreateEntryFromFile(pluginTempPath, $"{projectName}.plugin");
+            archive.CreateEntryFromFile(manifestPath, "manifest.json");
             archive.CreateEntryFromFile(checksumPath, $"{projectName}.plugin.sha256");
         }
 

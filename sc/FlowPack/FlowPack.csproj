@@ -13,4 +13,8 @@
 		<DebugType>None</DebugType>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="FlowSynx.PluginCore" Version="1.2.3" />
+	</ItemGroup>
+
 </Project>
