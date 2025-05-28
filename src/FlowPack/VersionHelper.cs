@@ -8,6 +8,14 @@ public static class VersionHelper
     {
         var assembly = Assembly.GetExecutingAssembly();
         var versionAttr = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-        return versionAttr?.InformationalVersion ?? assembly.GetName().Version?.ToString() ?? "unknown";
+        var version = versionAttr?.InformationalVersion;
+
+        if (version != null)
+        {
+            var parts = version.Split(new[] { '-', '+' }, 2);
+            return parts[0];
+        }
+
+        return "unknown";
     }
 }
