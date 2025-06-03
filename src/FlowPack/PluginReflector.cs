@@ -47,6 +47,7 @@ public static class PluginReflector
             ProjectUrl = plugin.Metadata.ProjectUrl,
             RepositoryUrl = plugin.Metadata.RepositoryUrl,
             Copyright = plugin.Metadata.Copyright,
+            ReadMe = plugin.Metadata.ReadMe,
             Authors = plugin.Metadata.Authors ?? new(),
             Tags = plugin.Metadata.Tags ?? new()
         };

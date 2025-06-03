@@ -13,6 +13,7 @@ public class PluginMetadata
     public string? ProjectUrl { get; set; }
     public string? RepositoryUrl { get; set; }
     public string? Copyright { get; set; }
+    public string? ReadMe { get; set; }
     public List<string> Authors { get; set; } = new List<string>();
     public List<string> Tags { get; set; } = new List<string>();
 }

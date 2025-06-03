@@ -42,7 +42,7 @@ class Program
             Usage: pack <path-to-csproj> [--output <path>] [--clean] [--verbose]
 
             Options:
-              --output <zip-path>   Specify the path for the output zip file.
+              --output <fspack-path>   Specify the path for the output zip file.
               --clean               Delete the temporary publish directory after zipping.
               --verbose             Enable detailed output from commands.
               --version, -v         Show flowpack version.

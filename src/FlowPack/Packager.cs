@@ -15,76 +15,120 @@ public class Packager
 
     public bool Build()
     {
-        string projectPath = _options.ProjectPath;
-
-        if (!File.Exists(projectPath) || Path.GetExtension(projectPath) != ".csproj")
-            throw new FileNotFoundException("Provided file must be a valid .csproj file.");
-
-        string projectName = Path.GetFileNameWithoutExtension(projectPath);
-        string configuration = "Release";
-        string tempOutput = Path.Combine(Path.GetTempPath(), "publish_output_" + Guid.NewGuid());
-        Directory.CreateDirectory(tempOutput);
-
-        if (_options.Clean)
-        {
-            RunCommand("dotnet", $"clean \"{projectPath}\" -c {configuration}");
-        }
-
-        if (!RunCommand("dotnet", $"build \"{projectPath}\" -c {configuration}"))
+        if (!ValidateProjectPath(out var projectName))
             return false;
 
-        if (!RunCommand("dotnet", $"publish \"{projectPath}\" -c {configuration} -o \"{tempOutput}\""))
-            return false;
+        var configuration = "Release";
+        var tempRoot = CreateTempDirectory("publish_output_");
+        var outputDir = CreateSubDirectory(tempRoot);
+        var manifestDir = CreateSubDirectory(tempRoot);
 
-        // Create .plugin file from published output
-        string pluginTempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".plugin");
-        string pluginMetadataTempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
-
-        var metadata = PluginReflector.ExtractPluginMetadata(tempOutput, _options.Verbose);
-        if (metadata == null)
+        try
         {
-            Console.WriteLine("No valid plugin metadata found.");
+            if (_options.Clean && !RunCommand("dotnet", $"clean \"{_options.ProjectPath}\" -c {configuration}"))
+                return false;
+
+            if (!RunCommand("dotnet", $"build \"{_options.ProjectPath}\" -c {configuration}"))
+                return false;
+
+            if (!RunCommand("dotnet", $"publish \"{_options.ProjectPath}\" -c {configuration} -o \"{outputDir}\""))
+                return false;
+
+            var pluginPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".plugin");
+            var checksumPath = pluginPath + ".sha256";
+
+            var metadata = PluginReflector.ExtractPluginMetadata(outputDir, _options.Verbose);
+            if (metadata == null)
+            {
+                LogError("No valid plugin metadata found.");
+                return false;
+            }
+
+            var manifestPath = PluginReflector.SaveMetadataToFile(metadata, manifestDir);
+
+            ZipFile.CreateFromDirectory(outputDir, pluginPath);
+            LogInfo($"Plugin created: {pluginPath}");
+
+            var checksum = ComputeSha256(pluginPath);
+            File.WriteAllText(checksumPath, checksum);
+            LogInfo($"SHA256: {checksum}");
+
+            var finalPackagePath = ResolveOutputPath(projectName);
+            CreateFinalPackage(finalPackagePath, pluginPath, manifestPath, checksumPath, projectName);
+
+            LogInfo($"Final package created: {finalPackagePath}");
+            return true;
+        }
+        finally
+        {
+            CleanupTempFiles(tempRoot);
+        }
+    }
+
+    private bool ValidateProjectPath(out string projectName)
+    {
+        projectName = Path.GetFileNameWithoutExtension(_options.ProjectPath);
+
+        if (!File.Exists(_options.ProjectPath) || Path.GetExtension(_options.ProjectPath) != ".csproj")
+        {
+            LogError("Provided file must be a valid .csproj file.");
             return false;
         }
 
-        var manifestPath = PluginReflector.SaveMetadataToFile(metadata, tempOutput);
+        return true;
+    }
 
-        ZipFile.CreateFromDirectory(tempOutput, pluginTempPath);
-        LogInfo($"Plugin created: {pluginTempPath}");
+    private string CreateTempDirectory(string prefix)
+    {
+        var path = Path.Combine(Path.GetTempPath(), prefix + Guid.NewGuid());
+        Directory.CreateDirectory(path);
+        return path;
+    }
 
-        // Compute SHA256
-        string checksum = ComputeSha256(pluginTempPath);
-        string checksumPath = pluginTempPath + ".sha256";
-        File.WriteAllText(checksumPath, checksum);
-        LogInfo($"SHA256: {checksum}");
+    private string CreateSubDirectory(string parent)
+    {
+        var subDir = Path.Combine(parent, Guid.NewGuid().ToString());
+        Directory.CreateDirectory(subDir);
+        return subDir;
+    }
 
-        // Determine final .fspack path
-        var fspackPath = _options.OutputPath;
-        if (string.IsNullOrWhiteSpace(fspackPath))
+    private string ResolveOutputPath(string projectName)
+    {
+        if (string.IsNullOrWhiteSpace(_options.OutputPath))
         {
-            fspackPath = Path.Combine(Directory.GetCurrentDirectory(), $"{projectName}.fspack");
+            return Path.Combine(Directory.GetCurrentDirectory(), $"{projectName}.fspack");
         }
-        else if (!fspackPath.EndsWith(".fspack", StringComparison.OrdinalIgnoreCase))
+
+        if (!Path.GetExtension(_options.OutputPath).Equals(".fspack", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("Output file must have a .fspack extension.");
         }
 
-        if (File.Exists(fspackPath)) File.Delete(fspackPath);
-        using (var archive = ZipFile.Open(fspackPath, ZipArchiveMode.Create))
+        return _options.OutputPath;
+    }
+
+    private void CreateFinalPackage(string packagePath, string pluginPath, string manifestPath, string checksumPath, string projectName)
+    {
+        if (File.Exists(packagePath))
+            File.Delete(packagePath);
+
+        using var archive = ZipFile.Open(packagePath, ZipArchiveMode.Create);
+        archive.CreateEntryFromFile(pluginPath, $"{projectName}.plugin");
+        archive.CreateEntryFromFile(manifestPath, "manifest.json");
+        archive.CreateEntryFromFile(checksumPath, $"{projectName}.plugin.sha256");
+    }
+
+    private void CleanupTempFiles(string tempRoot)
+    {
+        try
         {
-            archive.CreateEntryFromFile(pluginTempPath, $"{projectName}.plugin");
-            archive.CreateEntryFromFile(manifestPath, "manifest.json");
-            archive.CreateEntryFromFile(checksumPath, $"{projectName}.plugin.sha256");
+            Directory.Delete(tempRoot, recursive: true);
+            LogInfo("Cleaned up intermediate files.");
         }
-
-        LogInfo($"Final package created: {fspackPath}");
-
-        // Cleanup
-        File.Delete(pluginTempPath);
-        File.Delete(checksumPath);
-        LogInfo("Cleaned up intermediate files.");
-
-        return true;
+        catch (Exception ex)
+        {
+            LogError($"Failed to cleanup temporary files: {ex.Message}");
+        }
     }
 
     private bool RunCommand(string fileName, string arguments)
@@ -135,16 +179,12 @@ public class Packager
     private void LogInfo(string message)
     {
         if (_options.Verbose)
-        {
             Console.WriteLine(message);
-        }
     }
 
     private void LogError(string message)
     {
         if (_options.Verbose)
-        {
             Console.Error.WriteLine(message);
-        }
     }
 }
