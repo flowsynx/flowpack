@@ -14,7 +14,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="FlowSynx.PluginCore" Version="1.2.4" />
+	  <PackageReference Include="FlowSynx.PluginCore" Version="1.2.7" />
 	</ItemGroup>
 
 </Project>

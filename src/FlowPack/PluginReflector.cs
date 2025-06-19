@@ -49,7 +49,8 @@ public static class PluginReflector
             Copyright = plugin.Metadata.Copyright,
             ReadMe = plugin.Metadata.ReadMe,
             Authors = plugin.Metadata.Authors ?? new(),
-            Tags = plugin.Metadata.Tags ?? new()
+            Tags = plugin.Metadata.Tags ?? new(),
+            CategoryId = plugin.Metadata.Category.Id
         };
     }
 

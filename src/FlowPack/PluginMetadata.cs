@@ -16,4 +16,5 @@ public class PluginMetadata
     public string? ReadMe { get; set; }
     public List<string> Authors { get; set; } = new List<string>();
     public List<string> Tags { get; set; } = new List<string>();
+    public required string CategoryId { get; set; }
 }
