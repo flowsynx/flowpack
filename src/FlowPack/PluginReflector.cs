@@ -50,7 +50,7 @@ public static class PluginReflector
             ReadMe = plugin.Metadata.ReadMe,
             Authors = plugin.Metadata.Authors ?? new(),
             Tags = plugin.Metadata.Tags ?? new(),
-            CategoryId = plugin.Metadata.Category.Id
+            CategoryId = plugin.Metadata.Category.ToString()
         };
     }
 
