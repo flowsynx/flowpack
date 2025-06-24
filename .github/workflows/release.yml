@@ -60,7 +60,7 @@ jobs:
       shell: bash
       run: |
           release_name="flowpack-${{ matrix.title }}-${{ matrix.os_arch }}"
-          dotnet publish src/FlowPack/FlowPack.csproj /property:PublishSingleFile=true /property:PublishReadyToRun=true --runtime '${{ matrix.kind }}-${{ matrix.os_arch }}' -c Release --self-contained true /property:Version='${{ inputs.rel_version }}' -o "${{github.workspace}}/$release_name"
+          dotnet publish src/FlowPack.csproj /property:PublishSingleFile=true /property:PublishReadyToRun=true --runtime '${{ matrix.kind }}-${{ matrix.os_arch }}' -c Release --self-contained true /property:Version='${{ inputs.rel_version }}' -o "${{github.workspace}}/$release_name"
           
           mkdir -p "${{github.workspace}}/dist"
           cd "${{github.workspace}}/${release_name}"
