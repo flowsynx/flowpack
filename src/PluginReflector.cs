@@ -32,27 +32,28 @@ public static class PluginReflector
         return null;
     }
 
-    private static PluginMetadata CreatePluginMetadata(IPlugin plugin)
+    private static PluginMetadata CreatePluginMetadata(IPlugin plugin) => new PluginMetadata
     {
-        return new PluginMetadata
-        {
-            Id = plugin.Metadata.Id,
-            Type = plugin.Metadata.Type,
-            Version = plugin.Metadata.Version.ToString(),
-            CompanyName = plugin.Metadata.CompanyName,
-            Description = plugin.Metadata.Description,
-            License = plugin.Metadata.License,
-            LicenseUrl = plugin.Metadata.LicenseUrl,
-            Icon = plugin.Metadata.Icon,
-            ProjectUrl = plugin.Metadata.ProjectUrl,
-            RepositoryUrl = plugin.Metadata.RepositoryUrl,
-            Copyright = plugin.Metadata.Copyright,
-            ReadMe = plugin.Metadata.ReadMe,
-            Authors = plugin.Metadata.Authors ?? new(),
-            Tags = plugin.Metadata.Tags ?? new(),
-            CategoryId = plugin.Metadata.Category.ToString()
-        };
-    }
+        Id = plugin.Metadata.Id,
+        Type = plugin.Metadata.Type,
+        Version = plugin.Metadata.Version.ToString(),
+        CompanyName = plugin.Metadata.CompanyName,
+        Description = plugin.Metadata.Description,
+        License = plugin.Metadata.License,
+        LicenseUrl = plugin.Metadata.LicenseUrl,
+        Icon = plugin.Metadata.Icon,
+        ProjectUrl = plugin.Metadata.ProjectUrl,
+        RepositoryUrl = plugin.Metadata.RepositoryUrl,
+        Copyright = plugin.Metadata.Copyright,
+        ReadMe = plugin.Metadata.ReadMe,
+        Authors = plugin.Metadata.Authors ?? new(),
+        Tags = plugin.Metadata.Tags ?? new(),
+        CategoryId = plugin.Metadata.Category.ToString(),
+        MinimumFlowSynxVersion = plugin.Metadata.MinimumFlowSynxVersion.ToString(),
+        TargetFlowSynxVersion = plugin.Metadata.TargetFlowSynxVersion == null 
+                                ? "" 
+                                : plugin.Metadata.TargetFlowSynxVersion.ToString()
+    };
 
     public static string SaveMetadataToFile(PluginMetadata metadata, string outputDirectory)
     {

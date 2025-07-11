@@ -17,4 +17,6 @@ public class PluginMetadata
     public List<string> Authors { get; set; } = new List<string>();
     public List<string> Tags { get; set; } = new List<string>();
     public required string CategoryId { get; set; }
+    public required string MinimumFlowSynxVersion { get; set; }
+    public string? TargetFlowSynxVersion { get; set; }
 }
