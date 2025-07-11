@@ -77,7 +77,8 @@ The `manifest.json` file contains metadata like:
   "LicenseUrl": "https://opensource.org/licenses/MIT",
   "Authors": ["Jane Doe"],
   "Tags": ["data", "processor", "plugin"],
-  "CategoryId": "Communication"
+  "CategoryId": "Data",
+  "MinimumFlowSynxVersion": "1.0.0"
 }
 ```
 
