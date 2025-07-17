@@ -15,7 +15,7 @@ public class Packager
 
     public bool Build()
     {
-        if (!ValidateProjectPath(out var projectName))
+        if (!ValidateProjectPath())
             return false;
 
         var configuration = "Release";
@@ -53,8 +53,9 @@ public class Packager
             File.WriteAllText(checksumPath, checksum);
             LogInfo($"SHA256: {checksum}");
 
-            var finalPackagePath = ResolveOutputPath(projectName);
-            CreateFinalPackage(finalPackagePath, pluginPath, manifestPath, checksumPath, projectName);
+            var finalPackName = $"{metadata.Type}.{metadata.Version}";
+            var finalPackagePath = ResolveOutputPath(finalPackName);
+            CreateFinalPackage(finalPackagePath, pluginPath, manifestPath, checksumPath, finalPackName);
 
             LogInfo($"Final package created: {finalPackagePath}");
             return true;
@@ -65,10 +66,8 @@ public class Packager
         }
     }
 
-    private bool ValidateProjectPath(out string projectName)
+    private bool ValidateProjectPath()
     {
-        projectName = Path.GetFileNameWithoutExtension(_options.ProjectPath);
-
         if (!File.Exists(_options.ProjectPath) || Path.GetExtension(_options.ProjectPath) != ".csproj")
         {
             LogError("Provided file must be a valid .csproj file.");
