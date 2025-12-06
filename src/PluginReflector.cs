@@ -89,8 +89,7 @@ public static class PluginReflector
                     t.IsClass
                 ) ?? throw new InvalidOperationException("No concrete Specifications class found.");
 
-            // Create an instance to get default values
-            specInstance = Activator.CreateInstance(specType);
+            specInstance = CreateInstanceBestEffort(specType, plugin);
         }
 
         // Iterate over properties of the concrete type
@@ -126,13 +125,15 @@ public static class PluginReflector
                 continue;
 
             var opInterface = type.GetInterfaces()
-                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition().Name == "IPluginOperation`2");
+                .FirstOrDefault(i => i.IsGenericType &&
+                                     i.GetGenericTypeDefinition().Name == "IPluginOperation`2");
 
             if (opInterface == null)
                 continue;
 
-            object? opInstance = null;
-            try { opInstance = Activator.CreateInstance(type); } catch { continue; }
+            var opInstance = CreateInstanceBestEffort(type, plugin);
+            if (opInstance == null)
+                continue;
 
             var nameProp = type.GetProperty("Name", BindingFlags.Instance | BindingFlags.Public);
             var descProp = type.GetProperty("Description", BindingFlags.Instance | BindingFlags.Public);
@@ -146,20 +147,23 @@ public static class PluginReflector
             var paramType = opInterface.GetGenericArguments()[0];
             List<PluginOperationParameterMetadata> paramMetas = new();
 
+            // Try creating parameter objects too
+            var paramTypeInstance = CreateInstanceBestEffort(paramType);
+
             foreach (var prop in paramType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
                 var attr = prop.GetCustomAttribute<OperationParameterMetadataAttribute>();
-                if (attr == null) continue;
-
-                object? paramInstance = null;
-                try { paramInstance = Activator.CreateInstance(paramType); } catch { }
+                if (attr == null)
+                    continue;
 
                 paramMetas.Add(new PluginOperationParameterMetadata
                 {
                     Name = prop.Name,
                     Description = attr.Description,
                     Type = TypeExtensions.GetCanonicalAiTypeName(prop.PropertyType),
-                    DefaultValue = paramInstance != null ? prop.GetValue(paramInstance)?.ToString() : null,
+                    DefaultValue = paramTypeInstance != null
+                                       ? prop.GetValue(paramTypeInstance)?.ToString()
+                                       : null,
                     IsRequired = attr.IsRequired
                 });
             }
@@ -169,6 +173,83 @@ public static class PluginReflector
         }
 
         return operations;
+    }
+
+    private static object? CreateInstanceBestEffort(Type type, object? plugin = null)
+    {
+        // Try simplest path first
+        try
+        {
+            return Activator.CreateInstance(type);
+        }
+        catch
+        {
+            // ignore and try advanced logic
+        }
+
+        // Choose the "best" constructor: most parameters, public only
+        var ctors = type.GetConstructors()
+                        .OrderByDescending(c => c.GetParameters().Length)
+                        .ToList();
+
+        foreach (var ctor in ctors)
+        {
+            var parameters = ctor.GetParameters();
+            var args = new object?[parameters.Length];
+            bool failed = false;
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                var p = parameters[i];
+
+                // 1. If plugin instance is assignable to parameter → use it
+                if (plugin != null && p.ParameterType.IsAssignableFrom(plugin.GetType()))
+                {
+                    args[i] = plugin;
+                    continue;
+                }
+
+                // 2. If parameter has default value → use it
+                if (p.HasDefaultValue)
+                {
+                    args[i] = p.DefaultValue;
+                    continue;
+                }
+
+                // 3. If nullable reference/value → pass null
+                if (!p.ParameterType.IsValueType || Nullable.GetUnderlyingType(p.ParameterType) != null)
+                {
+                    args[i] = null;
+                    continue;
+                }
+
+                // 4. If parameter type has parameterless constructor → build it
+                try
+                {
+                    args[i] = Activator.CreateInstance(p.ParameterType);
+                    continue;
+                }
+                catch
+                {
+                    failed = true;
+                    break;
+                }
+            }
+
+            if (failed)
+                continue;
+
+            try
+            {
+                return ctor.Invoke(args);
+            }
+            catch
+            {
+                // try next constructor
+            }
+        }
+
+        return null; // No usable constructor
     }
 
     public static string SaveMetadataToFile(PluginMetadata metadata, string outputDirectory)

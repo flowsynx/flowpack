@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.12.35728.132
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowPack", "src\FlowPack.csproj", "{13B38F4C-6E7B-4853-A3E6-FBF4CEF8216A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6240DC87-BF93-4271-AF55-4EF8E9640912}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5F57EDB0-627C-432E-A5A4-86D51F39EE40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowPack.UnitTests", "tests\FlowPack.UnitTests.csproj", "{530CB1E2-282C-D124-5B19-4660B404BCB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +21,16 @@ Global
 		{13B38F4C-6E7B-4853-A3E6-FBF4CEF8216A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13B38F4C-6E7B-4853-A3E6-FBF4CEF8216A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13B38F4C-6E7B-4853-A3E6-FBF4CEF8216A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{530CB1E2-282C-D124-5B19-4660B404BCB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{530CB1E2-282C-D124-5B19-4660B404BCB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{530CB1E2-282C-D124-5B19-4660B404BCB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{530CB1E2-282C-D124-5B19-4660B404BCB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{13B38F4C-6E7B-4853-A3E6-FBF4CEF8216A} = {6240DC87-BF93-4271-AF55-4EF8E9640912}
+		{530CB1E2-282C-D124-5B19-4660B404BCB2} = {5F57EDB0-627C-432E-A5A4-86D51F39EE40}
 	EndGlobalSection
 EndGlobal

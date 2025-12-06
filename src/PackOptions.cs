@@ -16,7 +16,15 @@ public class PackOptions
             switch (args[i])
             {
                 case "--output":
-                    options.OutputPath = args.Length > i + 1 ? args[++i] : null;
+                    // Only consume the next arg as output if it exists and is not another flag
+                    if (args.Length > i + 1 && !(args[i + 1].StartsWith("--", StringComparison.Ordinal)))
+                    {
+                        options.OutputPath = args[++i];
+                    }
+                    else
+                    {
+                        options.OutputPath = null;
+                    }
                     break;
                 case "--clean":
                     options.Clean = true;
