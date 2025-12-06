@@ -12,15 +12,11 @@ FlowPack is a .NET packaging utility for building, packaging, and distributing F
 - Includes a plugin loader for dynamic plugin loading/unloading.
 - Simple CLI
 
----
-
-## 📦 Download
+## Download
 
 Download the latest version of FlowPack from the [Release page](https://github.com/flowsynx/flowpack/releases) and extract it.
 
----
-
-## 🚀 Usage
+## Usage
 
 ### Command Line Interface (CLI)
 
@@ -50,9 +46,7 @@ This will:
 2. Publish the plugin.
 3. Package it as `MyPlugin.fspack`.
 
----
-
-## 📂 Package Structure
+## Package Structure
 
 A `.fspack` file is a ZIP archive containing:
 
@@ -60,9 +54,7 @@ A `.fspack` file is a ZIP archive containing:
 - `manifest.json` - Metadata about the plugin.
 - `<PluginName>.plugin.sha256` - SHA256 checksum of the plugin file.
 
----
-
-## 📝 Plugin Metadata Example
+## Plugin Metadata Example
 
 The `manifest.json` file contains metadata like:
 
@@ -82,26 +74,18 @@ The `manifest.json` file contains metadata like:
 }
 ```
 
----
-
-## 🔗 Related Projects
+## Related Projects
 
 - [FlowSynx.PluginCore](https://github.com/flowsynx/plugin-core): Core interfaces for FlowSynx plugin systems.
 
----
-
-## 📜 License
+## License
 
 This project is licensed under the MIT License. See LICENSE for details.
 
----
-
-## 👨‍💻 Contributing
+## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
 
----
-
-## 🆘 Support
+## Support
 
 For questions or issues, please create an issue on the [GitHub repository](https://github.com/flowsynx/flowpack/issues).
