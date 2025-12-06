@@ -51,12 +51,12 @@ This will:
 A `.fspack` file is a ZIP archive containing:
 
 - `<PluginName>.plugin` - The compiled plugin DLLs and dependencies.
-- `manifest.json` - Metadata about the plugin.
+- `metadata.json` - Metadata about the plugin.
 - `<PluginName>.plugin.sha256` - SHA256 checksum of the plugin file.
 
 ## Plugin Metadata Example
 
-The `manifest.json` file contains metadata like:
+The `metadata.json` file contains metadata like:
 
 ```json
 {
