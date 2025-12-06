@@ -113,7 +113,7 @@ public class Packager
 
         using var archive = ZipFile.Open(packagePath, ZipArchiveMode.Create);
         archive.CreateEntryFromFile(pluginPath, $"{projectName}.plugin");
-        archive.CreateEntryFromFile(manifestPath, "manifest.json");
+        archive.CreateEntryFromFile(manifestPath, "metadata.json");
         archive.CreateEntryFromFile(checksumPath, $"{projectName}.plugin.sha256");
     }
 

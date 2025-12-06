@@ -19,4 +19,6 @@ public class PluginMetadata
     public required string CategoryId { get; set; }
     public required string MinimumFlowSynxVersion { get; set; }
     public string? TargetFlowSynxVersion { get; set; }
+    public List<SpecificationMetadata> Specifications { get; set; } = new List<SpecificationMetadata>();
+    public List<PluginOperationMetadata> Operations { get; set; } = new List<PluginOperationMetadata>();
 }
